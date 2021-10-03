@@ -13,21 +13,22 @@ class Car
 {
 public:
 	Car();
+	void set_texture(const sf::Texture&);
 	void turn(bool left);
 	void drive();
-	void update();
 	void update_draw(sf::RenderWindow& window, World& world, float dt);
+
+	float dist_left, dist_forward, dist_right, fitness;
+	bool finished;
 
 private:
 	sf::Vector2f v_dir; // unit direction vector
 	sf::Vector2f v_acc, v_vel, v_pos;
-	float engine_force, mass, angle;
+	float engine_force, mass, angle, time_between_checkpoints;
 	bool turn_left, turn_right, drive_forward;
 	int checkpoints_passed;
-
-	sf::Texture texture;
 	sf::Sprite car;
 
-	sf::Vector2f ray_wall_intersect(sf::Vector2f&, sf::VertexArray&, sf::VertexArray&);
+	sf::Vector2f ray_wall_intersect(sf::Vector2f&, sf::VertexArray&, sf::VertexArray&, float&);
 	bool intersect(const sf::Vector2f&, sf::VertexArray&, sf::VertexArray&);
 };

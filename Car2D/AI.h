@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Car.h"
+#include "World.h"
 
 constexpr float sqrt_hidden = 1.7320508f;
 
@@ -15,11 +16,16 @@ enum class Decision {
 class AI
 {
 public:
-	AI();
-	void process_input(float input[3]);
-	void draw(sf::RenderWindow&);
+	AI(const sf::Texture&);
+	AI cross_over(AI& other, const sf::Texture&);
+	void mutate();
+	void process_input();
+	void draw(sf::RenderWindow&, World&, float);
+	float get_fitness();
+	bool has_collided();
 
 private:
+	AI();
 	Car car;
 	float i_weights[3][3];
 	float h_weights[3][3];
