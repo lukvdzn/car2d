@@ -13,7 +13,7 @@ int main()
 
     //LevelEditor editor;
     GameManager gm;
-    gm.open_map("test_map");
+    gm.init("test_map");
     
     while (window.isOpen())
     {

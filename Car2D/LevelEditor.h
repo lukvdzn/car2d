@@ -1,12 +1,11 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "GameState.h"
 
-class LevelEditor : public GameState
+class LevelEditor
 {
 public:
 	LevelEditor();
-	void draw(sf::RenderWindow&) override;
+	void draw(sf::RenderWindow&);
 	bool done_with_edit() const;
 	void save_to_file(const char*) const;
 

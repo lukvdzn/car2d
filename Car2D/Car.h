@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "World.h"
 
 constexpr float car_width = 30;
 constexpr float car_height = 50;
@@ -12,12 +13,17 @@ class Car
 {
 public:
 	Car();
-	void update_draw(sf::RenderWindow& window, sf::VertexArray& track_outline, sf::VertexArray& track_inline, float dt);
+	void turn(bool left);
+	void drive();
+	void update();
+	void update_draw(sf::RenderWindow& window, World& world, float dt);
 
 private:
 	sf::Vector2f v_dir; // unit direction vector
 	sf::Vector2f v_acc, v_vel, v_pos;
 	float engine_force, mass, angle;
+	bool turn_left, turn_right, drive_forward;
+	int checkpoints_passed;
 
 	sf::Texture texture;
 	sf::Sprite car;
