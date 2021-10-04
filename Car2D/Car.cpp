@@ -18,9 +18,7 @@ Car::Car()
 	turn_right{false}, 
 	drive_forward{false},
 	finished{false},
-	dist_left{0},
-	dist_right{0},
-	dist_forward{0},
+	dist_to_walls{0, 0, 0, 0, 0},
 	checkpoints_passed{0}
 {
 
@@ -81,14 +79,19 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 	car.setOrigin(car_width / 2.f, car_height / 2.f);
 	car.rotate(rad_to_deg(angular_velocity));
 	car.setPosition(v_pos);
-	
+
 	// ---------------------------------- Rays ------------------------------------------------------------------------
 	sf::Vector2f ray_left = { v_dir.y, -v_dir.x };
 	sf::Vector2f ray_right = { -v_dir.y, v_dir.x };
+	// 45 degree rotate from direction vector
+	sf::Vector2f ray_left_angled = { (v_dir.x + v_dir.y)* c_cs_45, (v_dir.y - v_dir.x)* c_cs_45 };
+	sf::Vector2f ray_right_angled = { (v_dir.x - v_dir.y) * c_cs_45, (v_dir.x + v_dir.y) * c_cs_45 };
 
-	sf::Vector2f lray_is = ray_wall_intersect(ray_left, world.get_track_outline(), world.get_track_inline(), dist_left);
-	sf::Vector2f rray_is = ray_wall_intersect(ray_right, world.get_track_outline(), world.get_track_inline(), dist_right);
-	sf::Vector2f sray_is = ray_wall_intersect(v_dir, world.get_track_outline(), world.get_track_inline(), dist_forward);
+	sf::Vector2f sray_is = ray_wall_intersect(v_dir, world.get_track_outline(), world.get_track_inline(), dist_to_walls[0]);
+	sf::Vector2f lray_is = ray_wall_intersect(ray_left, world.get_track_outline(), world.get_track_inline(), dist_to_walls[1]);
+	sf::Vector2f laray_is = ray_wall_intersect(ray_left_angled, world.get_track_outline(), world.get_track_inline(), dist_to_walls[2]);
+	sf::Vector2f rray_is = ray_wall_intersect(ray_right, world.get_track_outline(), world.get_track_inline(), dist_to_walls[3]);
+	sf::Vector2f raray_is = ray_wall_intersect(ray_right_angled, world.get_track_outline(), world.get_track_inline(), dist_to_walls[4]);
 
 	const auto& trf = car.getTransform();
 	sf::Vector2f tire_left_front = trf.transformPoint({ 0, 0 });
@@ -110,7 +113,7 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 		vertex1.color = sf::Color::Green;
 		vertex2.color = sf::Color::Green;
 		// the less time it took & more checkpoints, the more fitness
-		fitness += checkpoints_passed / time_between_checkpoints;
+		fitness += (checkpoints_passed * checkpoints_passed) / time_between_checkpoints;
 		time_between_checkpoints = 0.f;
 	}
 
@@ -128,16 +131,24 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 	// ----------------------------------- Drawing --------------------------------------------------------------------
 	sf::Vertex ls[] = { sf::Vertex{v_pos}, sf::Vertex{sray_is} };
 	sf::Vertex ll[] = { sf::Vertex{v_pos}, sf::Vertex{lray_is} };
+	sf::Vertex lal[] = { sf::Vertex{v_pos}, sf::Vertex{laray_is} };
 	sf::Vertex lr[] = { sf::Vertex{v_pos}, sf::Vertex{rray_is} };
+	sf::Vertex lar[] = { sf::Vertex{v_pos}, sf::Vertex{raray_is} };
 	ls[0].color = sf::Color::Yellow;
 	ls[1].color = sf::Color::Yellow;
 	ll[0].color = sf::Color::Red;
 	ll[1].color = sf::Color::Red;
 	lr[0].color = sf::Color::Green;
 	lr[1].color = sf::Color::Green;
+	lar[0].color = sf::Color::Cyan;
+	lar[1].color = sf::Color::Cyan;
+	lal[0].color = sf::Color::Magenta;
+	lal[1].color = sf::Color::Magenta;
 	window.draw(ls, 2, sf::Lines);
 	window.draw(ll, 2, sf::Lines);
 	window.draw(lr, 2, sf::Lines);
+	window.draw(lal, 2, sf::Lines);
+	window.draw(lar, 2, sf::Lines);
 	window.draw(car);
 
 	// ---------------------------------- Reset --------------------------------------------------------------------------

@@ -3,7 +3,11 @@
 #include "Car.h"
 #include "World.h"
 
-constexpr float sqrt_hidden = 1.7320508f;
+constexpr int input_nodes = 5;
+constexpr int hidden_nodes = 5;
+constexpr int output_nodes = 3;
+constexpr int total_weights = input_nodes * hidden_nodes + hidden_nodes * output_nodes;
+constexpr float sqrt_hidden = 2.2360679774997f;
 
 enum class Decision {
 	FORWARD = 0x1,
@@ -27,6 +31,6 @@ public:
 private:
 	AI();
 	Car car;
-	float i_weights[3][3];
-	float h_weights[3][3];
+	float i_weights[hidden_nodes][input_nodes];
+	float h_weights[output_nodes][hidden_nodes];
 };
