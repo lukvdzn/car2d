@@ -12,8 +12,9 @@ int main()
     window.setVerticalSyncEnabled(true);
 
     //LevelEditor editor;
+    //bool done = false;
     GameManager gm;
-    gm.init("test_map");
+    gm.init("test_map_backup");
     
     while (window.isOpen())
     {
@@ -25,15 +26,17 @@ int main()
         }
 
         window.clear();
-        /*if (editor.done_with_edit() && !done)
+        /*
+        if (editor.done_with_edit() && !done)
         {
             done = true;
             editor.save_to_file("test_map");
-            gm.open_map("test_map");
+            //gm.open_map("test_map");
         }
-        else {
+        if (!done) {
             editor.draw(window);
-        }*/
+        }
+        */
         gm.draw(window);
         window.display();
     }

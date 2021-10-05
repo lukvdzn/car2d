@@ -33,5 +33,5 @@ private:
 	sf::Sprite car;
 
 	sf::Vector2f ray_wall_intersect(sf::Vector2f&, World&, float&);
-	bool intersect(const sf::Vector2f&, World&);
+	bool on_track(const sf::Vector2f&, World&);
 };

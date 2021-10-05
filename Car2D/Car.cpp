@@ -116,7 +116,7 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 	// ---------------------------------- Collision -------------------------------------------------------------------
 	for (auto& p : { tire_left_front, tire_left_back, tire_right_front, tire_right_back })
 	{
-		if (intersect(p, world))
+		if (!on_track(p, world))
 		{
 			// Calculate fitness by checking time and how many checkpoints car has passed
 			finished = true;
@@ -183,7 +183,7 @@ sf::Vector2f Car::ray_wall_intersect(sf::Vector2f& ray_dir, World& world, float&
 }
 
 // Only works, if map track outlines form a convex polygon
-bool Car::intersect(const sf::Vector2f& p, World& world)
+bool Car::on_track(const sf::Vector2f& p, World& world)
 {
 	auto& track_outline = world.get_track_outline();
 	auto& track_inline = world.get_track_inline();
@@ -194,7 +194,7 @@ bool Car::intersect(const sf::Vector2f& p, World& world)
 		const auto& v = track_outline[i].position;
 		if (ccw(q, v, p) <= 0.f)
 		{
-			return true;
+			return false;
 		}
 	}
 	bool inside = true;
@@ -209,7 +209,7 @@ bool Car::intersect(const sf::Vector2f& p, World& world)
 		}
 	}
 
-	return inside;
+	return !inside;
 }
 
 void Car::turn(bool left)

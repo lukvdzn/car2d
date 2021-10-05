@@ -40,3 +40,17 @@ inline sf::Vector2f mirror(const sf::Vector2f& p)
 {
 	return { p.x, 720 - p.y };
 }
+
+inline bool on_lsegment(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c)
+{
+	if (b.x <= std::max(a.x, c.x) && b.x >= std::min(a.x, c.x) && b.y <= std::max(a.y, c.y) && b.y >= std::min(a.y, c.y))
+		return true;
+	return false;
+}
+
+/* https://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/ */
+inline bool lsegment_intersect(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c, 
+	const sf::Vector2f& d, sf::Vector2f res)
+{
+
+}
