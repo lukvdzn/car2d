@@ -12,5 +12,6 @@ public:
 	sf::VertexArray& get_track_checkpoints();
 private:
 	sf::VertexArray t_checkpoints;
-	sf::VertexArray t_outline, t_inline;
+	sf::VertexArray t_outline;
+	sf::VertexArray t_inline;
 };

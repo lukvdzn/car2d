@@ -14,7 +14,7 @@ void World::draw(sf::RenderWindow& window)
 {
 	window.draw(t_outline);
 	window.draw(t_inline);
-	window.draw(t_checkpoints);
+	// window.draw(t_checkpoints);
 }
 
 void World::load_track(const char* file_name)

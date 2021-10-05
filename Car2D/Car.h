@@ -4,6 +4,7 @@
 
 constexpr float car_width = 15;
 constexpr float car_height = 25;
+constexpr float mass = 1000.f;
 constexpr float c_axle_dist = 1.5f; // 3.1f
 constexpr float c_drag = 0.4557f; // 0.4257f
 constexpr float c_roll_resistance = 30.f * c_drag;
@@ -25,13 +26,19 @@ public:
 	bool finished;
 
 private:
-	sf::Vector2f v_dir; // unit direction vector
-	sf::Vector2f v_acc, v_vel, v_pos;
-	float engine_force, mass, angle, time_between_checkpoints;
-	bool turn_left, turn_right, drive_forward;
-	int checkpoints_passed;
-	sf::Sprite car;
-
 	sf::Vector2f ray_wall_intersect(sf::Vector2f&, World&, float&);
 	bool on_track(const sf::Vector2f&, World&);
+
+	sf::Vector2f v_dir; // unit direction vector
+	sf::Vector2f v_acc;
+	sf::Vector2f v_vel;
+	sf::Vector2f v_pos;
+	float engine_force;
+	float angle;
+	float time_between_checkpoints;
+	bool turn_left;
+	bool turn_right;
+	bool drive_forward;
+	int checkpoints_passed;
+	sf::Sprite car;
 };

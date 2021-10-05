@@ -9,8 +9,7 @@ Car::Car(const sf::Texture& texture)
 	v_acc{ 0, 0 }, 
 	v_vel{ 0, 0 }, 
 	v_pos{ 50, 400 }, 
-	engine_force{ 0 }, 
-	mass{ 1000.f }, 
+	engine_force{ 0 },
 	angle{ 0 }, 
 	fitness{ 0 },
 	time_between_checkpoints{ 0 },
@@ -107,8 +106,9 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 	if (ccw(v1pos, v2pos, tire_left_front) >= 0.f || ccw(v1pos, v2pos, tire_right_front) >= 0.f)
 	{
 		checkpoints_passed += 2;
-		vertex1.color = sf::Color::Green;
-		vertex2.color = sf::Color::Green;
+		// color checkpoint green if passed
+		//vertex1.color = sf::Color::Green;
+		//vertex2.color = sf::Color::Green;
 		// the less time it took & more checkpoints, the more fitness
 		fitness += (checkpoints_passed * checkpoints_passed) / time_between_checkpoints;
 		time_between_checkpoints = 0.f;

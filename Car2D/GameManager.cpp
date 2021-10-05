@@ -17,7 +17,7 @@ GameManager::GameManager()
 
 void GameManager::init(const char* track_path)
 {
-    car_texture.loadFromFile("top_down_yellow.png");
+    car_texture.loadFromFile(car_file_path);
 	world.load_track(track_path);
     for (auto i = 0; i < population_size; ++i) population.emplace_back(car_texture);
 }
