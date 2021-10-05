@@ -150,6 +150,7 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="LevelEditor.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PseudoRandom.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +158,8 @@
     <ClInclude Include="Car.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="LevelEditor.h" />
+    <ClInclude Include="PseudoRandom.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="VectorMath.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

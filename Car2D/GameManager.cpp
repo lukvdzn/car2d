@@ -8,7 +8,9 @@
 #include "GameManager.h"
 #include "VectorMath.h"
 
-GameManager::GameManager() : delta_time{ 0 }, reset{false}
+GameManager::GameManager() 
+    : delta_time{ 0 }, 
+    reset{ false }
 {
 
 }

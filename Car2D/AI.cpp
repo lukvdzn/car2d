@@ -1,115 +1,75 @@
-#include <iostream>
-#include <random>
 #include "AI.h"
+#include "PseudoRandom.h"
 
-AI::AI(const sf::Texture& texture)
+AI::AI(const sf::Texture& texture) 
+	: n_weights(total_weights), 
+	car{ texture }
 {
-	std::random_device rd;
-	std::default_random_engine eng{ rd() };
-	std::uniform_real_distribution<> dis(-sqrt_hidden, sqrt_hidden);
-	for (auto i = 0; i < hidden_nodes; ++i)
+	const PseudoRandom& pr = PseudoRandom::get_instance();
+	for (auto i = 0; i < total_weights; ++i)
 	{
-		for (auto j = 0; j < input_nodes; ++j)
-		{
-			i_weights[i][j] = dis(eng);
-		}
+		n_weights[i] = pr.real_random_range(-sqrt_hidden, sqrt_hidden);
 	}
-	for (auto i = 0; i < output_nodes; ++i)
-	{
-		for (auto j = 0; j < hidden_nodes; ++j)
-		{
-			h_weights[i][j] = dis(eng);
-		}
-	}
-	car.set_texture(texture);
 }
 
 void AI::process_input()
 {
 	// input is car.dist_to_walls
-	float temp[5] = { 0, 0, 0 };
-	float out[3] = { 0, 0, 0 };
+	float temp[5] = { 0 };
+	float out[3] = { 0 };
+	auto l_fast_sigmoid = [](float& x) {
+		x = x / (1 + std::abs(x));
+	};
+	constexpr int hidden_to_out_index = hidden_nodes * input_nodes;
 	for (auto i = 0; i < hidden_nodes; ++i)
 	{
 		for (auto j = 0; j < input_nodes; ++j)
 		{
-			temp[i] += i_weights[i][j] * car.dist_to_walls[j];
+			temp[i] += n_weights[i * hidden_nodes + j] * car.dist_to_walls[j];
 		}
-		// fast sigmoid function
-		temp[i] = temp[i] / (1 + std::abs(temp[i]));
+		l_fast_sigmoid(temp[i]);
 	}
 	for (auto i = 0; i < output_nodes; ++i)
 	{
 		for (auto j = 0; j < hidden_nodes; ++j)
 		{
-			out[i] += h_weights[i][j] * temp[j];
+			out[i] += n_weights[hidden_to_out_index +  i * output_nodes + j] * temp[j];
 		}
-		// fast sigmoid function
-		out[i] = std::abs(out[i]) / (1 + std::abs(out[i]));
+		l_fast_sigmoid(out[i]);
+		out[i] = std::abs(out[i]);
 	}
-
-	if (out[0] >= 0.5f) car.drive();
+	if (out[0] > output_threshold) car.drive();
 	if (out[1] > out[2])
 	{
 		// left
-		if (out[1] >= 0.5f) car.turn(true);
+		if (out[1] > output_threshold) car.turn(true);
 	}
 	else {
 		// right
-		if (out[2] >= 0.5f) car.turn(false);
+		if (out[2] > output_threshold) car.turn(false);
 	}
 }
 
-AI AI::cross_over(AI& other, const sf::Texture& texture)
+AI AI::cross_over(const AI& other, const sf::Texture& texture) const
 {
-	std::random_device rd;
-	std::default_random_engine eng{ rd() };
-	std::uniform_int_distribution<> dis(0, 1);
+	const PseudoRandom& pr = PseudoRandom::get_instance();
 	AI baby{ texture };
-	for (auto i = 0; i < hidden_nodes; ++i)
+	for (auto i = 0; i < total_weights; ++i)
 	{
-		for (auto j = 0; j < input_nodes; ++j)
-		{
-			baby.i_weights[i][j] = dis(eng) ? i_weights[i][j] : other.i_weights[i][j];
-		}
+		baby.n_weights[i] = pr.int_random_range(0, 1) ? n_weights[i] : other.n_weights[i];
 	}
-	for (auto i = 0; i < output_nodes; ++i)
-	{
-		for (auto j = 0; j < hidden_nodes; ++j)
-		{
-			baby.h_weights[i][j] = dis(eng) ? h_weights[i][j] : other.h_weights[i][j];
-		}
-	}
-
 	return baby;
 }
 
 void AI::mutate()
 {
-	// mutation rate 0.02
-	std::random_device rd;
-	std::default_random_engine eng{ rd() };
-	std::uniform_int_distribution<> idis(0, 100);
-	std::uniform_real_distribution<> rdis(-sqrt_hidden, sqrt_hidden);
-
-	if(idis(eng) <= 2)
+	// mutation rate ~ 0.02
+	const PseudoRandom& pr = PseudoRandom::get_instance();
+	if(pr.int_random_range(0, 100) <= 2)
 	{
-		int i = idis(eng) % total_weights;
-		// weights from hidden nodes to output nodes
-		if (i >= input_nodes * hidden_nodes)
-		{
-			i %= output_nodes * hidden_nodes;
-			int j = i % hidden_nodes;
-			i /= hidden_nodes;
-			h_weights[i][j] = rdis(eng);
-		}
-		else {
-			// weights from input nodes to hidden nodes
-			i %= hidden_nodes * input_nodes;
-			int j = i % input_nodes;
-			i /= input_nodes;
-			i_weights[i][j] = rdis(eng);
-		}
+		// index of genome to change, genomes are made up to 1D vector from all weights in network appended
+		int i = pr.int_random_range(0, total_weights - 1);
+		n_weights[i] = pr.real_random_range(-sqrt_hidden, sqrt_hidden);
 	}
 }
 
