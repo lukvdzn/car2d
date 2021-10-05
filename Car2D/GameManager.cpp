@@ -25,16 +25,13 @@ void GameManager::init(const char* track_path)
 void GameManager::draw(sf::RenderWindow& window)
 {
     reset = true;
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) car.drive();
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) car.turn(true);
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) car.turn(false);
 	world.draw(window);
 	std::for_each(population.begin(), population.end(), [&](AI& ai) {
 		ai.draw(window, world, delta_time); 
 		ai.process_input();
         if (reset && !ai.has_collided()) reset = false;
 	});
-	delta_time = clock.restart().asMilliseconds();   
+    delta_time = clock.restart().asMilliseconds();
     if (reset) roulette_wheel_selection();
 }
 

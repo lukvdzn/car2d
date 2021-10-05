@@ -8,7 +8,7 @@ Car::Car(const sf::Texture& texture)
 	: v_dir{ 0, -1 }, 
 	v_acc{ 0, 0 }, 
 	v_vel{ 0, 0 }, 
-	v_pos{ 50, 480 }, 
+	v_pos{ 50, 400 }, 
 	engine_force{ 0 }, 
 	mass{ 1000.f }, 
 	angle{ 0 }, 
@@ -89,10 +89,11 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 	sf::Vector2f raray_is = ray_wall_intersect(ray_right_angled, world, dist_to_walls[4]);
 
 	const auto& trf = car.getTransform();
-	sf::Vector2f tire_left_front = trf.transformPoint({ 0, 0 });
-	sf::Vector2f tire_left_back = trf.transformPoint({ 0, car_height });
-	sf::Vector2f tire_right_front = trf.transformPoint({ car_width, 0 });
-	sf::Vector2f tire_right_back = trf.transformPoint({ car_width, car_height });
+	// transform all tire points origin and set origin to lower left corner (0,0)
+	sf::Vector2f tire_left_front = mirror(trf.transformPoint({ 0, 0 }));
+	sf::Vector2f tire_left_back = mirror(trf.transformPoint({ 0, car_height }));
+	sf::Vector2f tire_right_front = mirror(trf.transformPoint({ car_width, 0 }));
+	sf::Vector2f tire_right_back = mirror(trf.transformPoint({ car_width, car_height }));
 
 	// ---------------------------------- Checkpoints -----------------------------------------------------------------
 	auto& checkpoints = world.get_track_checkpoints();
@@ -103,7 +104,7 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 	const auto& v1pos = mirror(vertex1.position);
 	const auto& v2pos = mirror(vertex2.position);
 	// if one of the 2 front tires passes next checkpoint, update color
-	if (ccw(v1pos, v2pos, mirror(tire_left_front)) >= 0.f || ccw(v1pos, v2pos, mirror(tire_right_front)) >= 0.f)
+	if (ccw(v1pos, v2pos, tire_left_front) >= 0.f || ccw(v1pos, v2pos, tire_right_front) >= 0.f)
 	{
 		checkpoints_passed += 2;
 		vertex1.color = sf::Color::Green;
@@ -147,34 +148,20 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 
 sf::Vector2f Car::ray_wall_intersect(sf::Vector2f& ray_dir, World& world, float& dist)
 {
-	float dist_nearest = 1000000000.f;
+	float dist_nearest = Constants::big_value;
 	sf::Vector2f v_nearest = { -1, -1 };
 	// Find nearest collision point for each wall on each track
 	for (auto& track : { world.get_track_inline(), world.get_track_outline() })
 	{
 		for (auto i = 1; i < track.getVertexCount(); ++i)
 		{
-			// https://rootllama.wordpress.com/2014/06/20/ray-line-segment-intersection-test-in-2d/
 			const auto& p_a = track[i - 1].position;
 			const auto& p_b = track[i].position;
-			auto v_1 = v_pos - p_a;
-			auto v_2 = p_b - p_a;
-			auto v_3 = sf::Vector2f{ -ray_dir.y, ray_dir.x };
-			auto vd = v_dot(v_2, v_3);
-
-			if (std::abs(vd) > 0.000001f)
+			float dist_to_wall = ray_line_intersection(p_a, p_b, v_pos, ray_dir);
+			if (dist_to_wall < dist_nearest)
 			{
-				// cross product by 2d determinant
-				float t_1 = (v_2.x * v_1.y - v_2.y * v_1.x) / vd;
-				float t_2 = v_dot(v_1, v_3) / vd;
-				if (t_1 >= 0.0 && (t_2 >= 0.f && t_2 <= 1.0f))
-				{
-					if (t_1 < dist_nearest)
-					{
-						dist_nearest = t_1;
-						v_nearest = v_pos + t_1 * ray_dir;
-					}
-				}
+				dist_nearest = dist_to_wall;
+				v_nearest = v_pos + dist_to_wall * ray_dir;
 			}
 		}
 	}
@@ -182,34 +169,31 @@ sf::Vector2f Car::ray_wall_intersect(sf::Vector2f& ray_dir, World& world, float&
 	return v_nearest;
 }
 
-// Only works, if map track outlines form a convex polygon
+/* point p has to be mirrored, ie. origin (0,0) has to be bottom left */
 bool Car::on_track(const sf::Vector2f& p, World& world)
 {
+	// ray casting algorithm, p has to be mirrored
+	auto l_point_in_polygon = [](const sf::VertexArray& va, const sf::Vector2f p) {
+		bool inside = false;
+		for (auto i = 1; i < va.getVertexCount(); ++i)
+		{
+			const auto& prev_pos = mirror(va[i - 1].position);
+			const auto& curr_pos = mirror(va[i].position);
+			// check if point is on edge
+			if (ccw(prev_pos, curr_pos, p) == 0) return true;
+			if (ray_line_intersection(prev_pos, curr_pos, p, { 1, 0 }) < Constants::big_value)
+				inside = !inside;
+		}
+		return inside;
+	};
+
+	// p has to be inside track_outline and outside of track_inline, both polygons
 	auto& track_outline = world.get_track_outline();
 	auto& track_inline = world.get_track_inline();
-	// has to be to the right of track_outline
-	for (auto i = 1; i < track_outline.getVertexCount(); ++i)
-	{
-		const auto& q = track_outline[i - 1].position;
-		const auto& v = track_outline[i].position;
-		if (ccw(q, v, p) <= 0.f)
-		{
-			return false;
-		}
-	}
-	bool inside = true;
-	// has to be to the left of track inline
-	for (auto i = 1; i < track_inline.getVertexCount(); ++i)
-	{
-		const auto& q = track_inline[i - 1].position;
-		const auto& v = track_inline[i].position;
-		if (ccw(q, v, p) <= 0.f)
-		{
-			inside = false;
-		}
-	}
 
-	return !inside;
+	if (!l_point_in_polygon(track_outline, p) || l_point_in_polygon(track_inline, p))
+		return false;
+	return true;
 }
 
 void Car::turn(bool left)

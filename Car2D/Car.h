@@ -4,10 +4,10 @@
 
 constexpr float car_width = 15;
 constexpr float car_height = 25;
-constexpr float c_axle_dist = 3.1f;
+constexpr float c_axle_dist = 1.5f; // 3.1f
 constexpr float c_drag = 0.4557f; // 0.4257f
 constexpr float c_roll_resistance = 30.f * c_drag;
-constexpr float c_max_engine_force = 3.f;
+constexpr float c_max_engine_force = 2.f;
 
 // cos(45 deg), sin(45 deg)
 constexpr float c_cs_45 = 0.70710678118f;

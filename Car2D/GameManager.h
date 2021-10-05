@@ -5,7 +5,7 @@
 #include "Car.h"
 #include "AI.h"
 
-constexpr int population_size = 450;
+constexpr int population_size = 500;
 
 class GameManager
 {
