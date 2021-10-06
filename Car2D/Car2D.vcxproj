@@ -18,6 +18,25 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\AI.h" />
+    <ClInclude Include="include\Car.h" />
+    <ClInclude Include="include\GameConstants.h" />
+    <ClInclude Include="include\GameManager.h" />
+    <ClInclude Include="include\LevelEditor.h" />
+    <ClInclude Include="include\PseudoRandom.h" />
+    <ClInclude Include="include\VectorMath.h" />
+    <ClInclude Include="include\World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\AI.cpp" />
+    <ClCompile Include="src\Car.cpp" />
+    <ClCompile Include="src\GameManager.cpp" />
+    <ClCompile Include="src\LevelEditor.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\PseudoRandom.cpp" />
+    <ClCompile Include="src\World.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -88,7 +107,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_USE_MATH_DEFINES;SFML_STATIC;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Cpp\SFML_VC32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include/;C:\Cpp\SFML_VC32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_USE_MATH_DEFINES;SFML_STATIC;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Cpp\SFML_VC32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include/;C:\Cpp\SFML_VC32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,25 +163,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="AI.cpp" />
-    <ClCompile Include="Car.cpp" />
-    <ClCompile Include="GameManager.cpp" />
-    <ClCompile Include="LevelEditor.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="PseudoRandom.cpp" />
-    <ClCompile Include="World.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="AI.h" />
-    <ClInclude Include="Car.h" />
-    <ClInclude Include="GameManager.h" />
-    <ClInclude Include="LevelEditor.h" />
-    <ClInclude Include="PseudoRandom.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="VectorMath.h" />
-    <ClInclude Include="World.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

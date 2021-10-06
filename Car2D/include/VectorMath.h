@@ -1,8 +1,9 @@
 #pragma once
 #include <cmath>
 #include <SFML/Graphics.hpp>
+#include "GameConstants.h"
 
-namespace Constants {
+namespace MathConstants {
 	constexpr float big_value = 1000000000.f;
 };
 
@@ -42,7 +43,7 @@ inline float ccw(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2
 // Computer graphics/ SFML origin (0,0) is top left corner of window, some operations need it to be corrected
 inline sf::Vector2f mirror(const sf::Vector2f& p)
 {
-	return { p.x, 720 - p.y };
+	return { p.x, GameConstants::window_height - p.y };
 }
 
 inline bool on_lsegment(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c)
@@ -71,5 +72,5 @@ inline float ray_line_intersection(const sf::Vector2f& p_a, const sf::Vector2f& 
 	}
 
 	// big arbitrary value
-	return Constants::big_value;
+	return MathConstants::big_value;
 }

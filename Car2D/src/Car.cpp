@@ -3,12 +3,13 @@
 #include <algorithm>
 #include "Car.h"
 #include "VectorMath.h"
+#include "GameConstants.h"
 
 Car::Car(const sf::Texture& texture) 
 	: v_dir{ 0, -1 }, 
 	v_acc{ 0, 0 }, 
 	v_vel{ 0, 0 }, 
-	v_pos{ 50, 400 }, 
+	v_pos{ GameConstants::car_start_pos }, 
 	engine_force{ 0 },
 	angle{ 0 }, 
 	fitness{ 0 },
@@ -29,29 +30,18 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 	if (finished || time_between_checkpoints > 3000)
 	{
 		finished = true;
-		window.draw(car);
+		//window.draw(car);
 		return;
 	}
 
-	if (drive_forward)
-	{
-		engine_force = std::min(c_max_engine_force, engine_force + 0.5f);
-	}
-	else {
-		engine_force = std::max(0.f, engine_force - 0.5f);
-	}
+	engine_force = drive_forward ? std::min(c_max_engine_force, engine_force + c_inc_engine_force) 
+		: std::max(0.f, engine_force - c_inc_engine_force);
+	if (turn_left) angle = std::max(-c_max_rot, angle - c_inc_rot);
+	else if (turn_right) angle = std::min(c_max_rot, angle + c_inc_rot);
 
-	if (turn_left)
-	{
-		angle = std::max(-20.f, angle - 3.f);
-	}
-	else if (turn_right)
-	{
-		angle = std::min(20.f, angle + 3.f);
-	}
-
-	time_between_checkpoints += dt;
+	// ------------------------------------- Physics ------------------------------------------------------------------
 	// https://asawicki.info/Mirror/Car%20Physics%20for%20Games/Car%20Physics%20for%20Games.html
+	time_between_checkpoints += dt;
 	float speed = v_magnitude(v_vel);
 	sf::Vector2f v_trac_force = v_dir * engine_force;
 	sf::Vector2f v_drag_force = -c_drag * v_vel * speed;
@@ -107,8 +97,8 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 	{
 		checkpoints_passed += 2;
 		// color checkpoint green if passed
-		//vertex1.color = sf::Color::Green;
-		//vertex2.color = sf::Color::Green;
+		// vertex1.color = sf::Color::Green;
+		// vertex2.color = sf::Color::Green;
 		// the less time it took & more checkpoints, the more fitness
 		fitness += (checkpoints_passed * checkpoints_passed) / time_between_checkpoints;
 		time_between_checkpoints = 0.f;
@@ -140,7 +130,7 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 	l_draw_line_from_pos(raray_is, sf::Color::Cyan);
 	window.draw(car);
 
-	// ---------------------------------- Reset --------------------------------------------------------------------------
+	// ---------------------------------- Reset -----------------------------------------------------------------------
 	turn_left = false;
 	turn_right = false;
 	drive_forward = false;
@@ -148,7 +138,7 @@ void Car::update_draw(sf::RenderWindow& window, World& world, float dt)
 
 sf::Vector2f Car::ray_wall_intersect(sf::Vector2f& ray_dir, World& world, float& dist)
 {
-	float dist_nearest = Constants::big_value;
+	float dist_nearest = MathConstants::big_value;
 	sf::Vector2f v_nearest = { -1, -1 };
 	// Find nearest collision point for each wall on each track
 	for (auto& track : { world.get_track_inline(), world.get_track_outline() })
@@ -181,7 +171,7 @@ bool Car::on_track(const sf::Vector2f& p, World& world)
 			const auto& curr_pos = mirror(va[i].position);
 			// check if point is on edge
 			if (ccw(prev_pos, curr_pos, p) == 0) return true;
-			if (ray_line_intersection(prev_pos, curr_pos, p, { 1, 0 }) < Constants::big_value)
+			if (ray_line_intersection(prev_pos, curr_pos, p, { 1, 0 }) < MathConstants::big_value)
 				inside = !inside;
 		}
 		return inside;

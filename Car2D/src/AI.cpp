@@ -27,7 +27,8 @@ void AI::process_input()
 		{
 			temp[i] += n_weights[i * hidden_nodes + j] * car.dist_to_walls[j];
 		}
-		l_fast_sigmoid(temp[i]);
+		// RELU
+		temp[i] = std::max(0.f, temp[i] + c_bias);
 	}
 	for (auto i = 0; i < output_nodes; ++i)
 	{
@@ -35,6 +36,7 @@ void AI::process_input()
 		{
 			out[i] += n_weights[hidden_to_out_index +  i * output_nodes + j] * temp[j];
 		}
+		out[i] += c_bias;
 		l_fast_sigmoid(out[i]);
 		out[i] = std::abs(out[i]);
 	}

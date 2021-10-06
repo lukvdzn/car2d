@@ -6,6 +6,7 @@
 #include <random>
 #include <SFML/Window/Keyboard.hpp>
 #include "GameManager.h"
+#include "PseudoRandom.h"
 #include "VectorMath.h"
 
 GameManager::GameManager() 
@@ -37,18 +38,16 @@ void GameManager::draw(sf::RenderWindow& window)
 
 void GameManager::roulette_wheel_selection()
 {
-    std::random_device rd;
-    std::default_random_engine eng{ rd() };
+	PseudoRandom& pr = PseudoRandom::get_instance();
     std::vector<AI> new_generation;
     float sum_fitness = 0.f;
     std::for_each(population.begin(), population.end(), [&](AI& ai) { sum_fitness += ai.get_fitness(); });
-    std::uniform_real_distribution<> dis(0, sum_fitness);
     
     // Cross Over
     while (new_generation.size() < population_size)
     {
         auto l_turn_wheel = [&]() {
-            float rand = dis(eng);
+            float rand = pr.real_random_range(0, sum_fitness);
             float wheel_sum = 0.f;
             int j = 0;
             for (; wheel_sum < rand && j < population_size; ++j)
@@ -64,6 +63,5 @@ void GameManager::roulette_wheel_selection()
     population = std::move(new_generation);
     // Mutation
     std::for_each(population.begin(), population.end(), [&](AI& ai) { ai.mutate(); });
-    
     std::cout << "Average fitness: " << sum_fitness / population_size << std::endl;
 }

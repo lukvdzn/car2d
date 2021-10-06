@@ -6,7 +6,7 @@
 #include "AI.h"
 
 constexpr const char* car_file_path = "top_down_car.png";
-constexpr int population_size = 100;
+constexpr int population_size = 450;
 
 class GameManager
 {

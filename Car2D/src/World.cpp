@@ -25,18 +25,18 @@ void World::load_track(const char* file_name)
 		std::cout << "Could not read file " << file_name << std::endl;
 		return;
 	}
-	auto l_append = [&](sf::VertexArray& va) {
+	auto l_append = [&](sf::VertexArray& va, const sf::Color& color = sf::Color::White) {
 		int size_points = -1;
 		f_map >> size_points;
 		for (auto i = 0; i < size_points; ++i)
 		{
 			float x, y;
 			f_map >> x >> y;
-			va.append(sf::Vertex{ sf::Vector2f{ x, y } });
+			va.append(sf::Vertex{ sf::Vector2f{ x, y }, color });
 		}
 	};
-	l_append(t_outline);
-	l_append(t_inline);
+	l_append(t_outline, sf::Color::Red);
+	l_append(t_inline, sf::Color::Green);
 	l_append(t_checkpoints);
 	std::cout << "Done reading track: " << file_name << std::endl;
 }

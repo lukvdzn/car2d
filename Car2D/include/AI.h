@@ -8,6 +8,7 @@ constexpr int input_nodes = 5;
 constexpr int hidden_nodes = 5;
 constexpr int output_nodes = 3;
 constexpr int total_weights = input_nodes * hidden_nodes + hidden_nodes * output_nodes;
+constexpr float c_bias = 1.f; 
 constexpr float sqrt_hidden = 2.2360679774997f; // sqrt of |hidden_nodes|
 constexpr float output_threshold = 0.5f;
 

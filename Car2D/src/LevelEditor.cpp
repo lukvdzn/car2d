@@ -2,6 +2,7 @@
 #include <fstream>
 #include "LevelEditor.h"
 #include "VectorMath.h"
+#include "GameConstants.h"
 
 LevelEditor::LevelEditor() 
 	: track_outline{ sf::LinesStrip }, 
@@ -21,6 +22,10 @@ void LevelEditor::draw(sf::RenderWindow& window)
     window.draw(track_outline);
     window.draw(track_inline);
     window.draw(track_checkpoints);
+	// draw car starting point for reference
+	sf::CircleShape start_circle(5.f);
+	start_circle.setPosition(GameConstants::car_start_pos);
+	window.draw(start_circle);
 }
 
 void LevelEditor::update(sf::RenderWindow& window)
@@ -32,6 +37,7 @@ void LevelEditor::update(sf::RenderWindow& window)
     if (done_inline && Keyboard::isKeyPressed(Keyboard::S))
     {
         done_checkpoints = true;
+		save_to_file("track_1");
         return;
     }
     
@@ -40,17 +46,22 @@ void LevelEditor::update(sf::RenderWindow& window)
     auto l_last_vertex_pos = [&]() -> Vector2f& { return va[va.getVertexCount() - 1].position; };
 
     if (!Mouse::isButtonPressed(Mouse::Button::Left)) mouse_pressed = false;
-    
+	
+	// if mouse is out of window
+	if (mouse_pos.x < 0 || mouse_pos.x >= GameConstants::window_width 
+		|| mouse_pos.y < 0 || mouse_pos.y >= GameConstants::window_height) return;
+
     if (!done_outline || !done_inline)
     {
         if (!mouse_pressed && Mouse::isButtonPressed(Mouse::Button::Left))
         {
             mouse_pressed = true;
+			const auto& color = done_outline ? sf::Color::Green : sf::Color::Red;
             if (first_mouse_pos == Vector2f{ -1, -1 })
             {
                 first_mouse_pos = Vector2f{ mouse_pos };
-                va.append(Vertex{ mouse_pos });
-                va.append(Vertex{ mouse_pos });
+                va.append(Vertex{ mouse_pos,  color});
+                va.append(Vertex{ mouse_pos, color});
             }
             else {
                 // if more than 1 vertex exists, close track polygon if 
@@ -65,7 +76,7 @@ void LevelEditor::update(sf::RenderWindow& window)
                 }
                 else {
                     l_last_vertex_pos() = mouse_pos;
-                    va.append(Vertex{ mouse_pos });
+                    va.append(Vertex{ mouse_pos, color });
                 }
             }
         }
@@ -86,8 +97,8 @@ void LevelEditor::update(sf::RenderWindow& window)
                         point_set = false;
                     }
                     else {
-                        va.append(Vertex{ mouse_pos });
-                        va.append(Vertex{ mouse_pos });
+                        va.append(Vertex{ mouse_pos, sf::Color::Yellow });
+                        va.append(Vertex{ mouse_pos, sf::Color::Yellow });
                         point_set = true;
                     }
                 }
